@@ -3,6 +3,7 @@ import { Configuration } from 'webpack';
 import 'webpack-dev-server';
 import TsCheckerPlugin from 'fork-ts-checker-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 enum CHUNKS {
     main = 'main',
@@ -17,6 +18,24 @@ const config: Configuration = {
     },
     module: {
         rules: [
+            {
+                test: /\.module\.s[ac]ss$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: true,
+                        },
+                    },
+                    'sass-loader',
+                ],
+            },
+            {
+                test: /\.s[ac]ss$/,
+                exclude: /\.module\.s[ac]ss$/,
+                use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+            },
             {
                 test: /\.(ts|js)x?$/,
                 exclude: /node_modules/,
@@ -33,6 +52,7 @@ const config: Configuration = {
             chunks: [CHUNKS.main],
             filename: 'index.html',
         }),
+        new MiniCssExtractPlugin(),
     ],
     optimization: {
         splitChunks: {
